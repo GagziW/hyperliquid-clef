@@ -1,0 +1,18 @@
+# Percent values: 0.50 means 0.50%, not 50%. These are unoptimized PAPER test settings.
+network = "mainnet"
+jump_threshold_pct = "0.50"
+lookback_s = 60.0
+take_profit_pct = "0.15"
+stop_loss_pct = "0.50"
+max_holding_s = 120.0
+cooldown_s = 30.0
+
+starting_balance_usdc = "1000"
+order_usdc = "20"
+maker_fee_bps = "1.5"
+taker_fee_bps = "4.5"
+exit_slippage_bps = "1"
+latency_ms = 250.0
+entry_timeout_s = 5.0
+max_book_age_ms = 1500.0
+gap_reset_s = 5.0

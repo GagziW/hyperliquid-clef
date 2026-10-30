@@ -1,0 +1,155 @@
+2024-01: rows=2678400 missing=0 events=3878 paths=3926 elapsed=11s
+2024-02: rows=2505600 missing=0 events=2541 paths=6541 elapsed=17s
+2024-03: rows=2678400 missing=0 events=9444 paths=15848 elapsed=20s
+2024-04: rows=2592000 missing=0 events=6938 paths=22706 elapsed=23s
+2024-05: rows=2678400 missing=0 events=4200 paths=26880 elapsed=27s
+2024-06: rows=2592000 missing=0 events=1743 paths=28692 elapsed=29s
+2024-07: rows=2678400 missing=0 events=3861 paths=32572 elapsed=33s
+2024-08: rows=2678400 missing=0 events=12922 paths=45045 elapsed=37s
+2024-09: rows=2592000 missing=0 events=2882 paths=47968 elapsed=40s
+2024-10: rows=2678400 missing=0 events=2295 paths=50378 elapsed=43s
+2024-11: rows=2592000 missing=0 events=7143 paths=57498 elapsed=47s
+2024-12: rows=2678400 missing=0 events=6945 paths=64474 elapsed=50s
+2025-01: rows=2678400 missing=0 events=7799 paths=72225 elapsed=54s
+2025-02: rows=2419200 missing=0 events=15263 paths=87057 elapsed=58s
+2025-03: rows=2678400 missing=0 events=12672 paths=99382 elapsed=62s
+2025-04: rows=2592000 missing=0 events=12279 paths=111284 elapsed=66s
+2025-05: rows=2678400 missing=0 events=9776 paths=120845 elapsed=70s
+2025-06: rows=2592000 missing=0 events=5449 paths=126212 elapsed=73s
+2025-07: rows=2678400 missing=0 events=4255 paths=130523 elapsed=77s
+2025-08: rows=2678400 missing=0 events=5791 paths=136387 elapsed=80s
+2025-09: rows=2592000 missing=0 events=1807 paths=138295 elapsed=82s
+2025-10: rows=2678400 missing=0 events=7944 paths=145848 elapsed=86s
+2025-11: rows=2592000 missing=0 events=11089 paths=156883 elapsed=90s
+2025-12: rows=2678400 missing=0 events=6099 paths=162972 elapsed=93s
+2026-01: rows=2678400 missing=0 events=4783 paths=167742 elapsed=97s
+2026-02: rows=2419200 missing=0 events=17312 paths=184215 elapsed=101s
+2026-03: rows=2678400 missing=0 events=6550 paths=190673 elapsed=104s
+2026-04: rows=2592000 missing=0 events=2514 paths=193258 elapsed=107s
+2026-05: rows=2678400 missing=0 events=1178 paths=194585 elapsed=110s
+2026-06: rows=2592000 missing=0 events=6710 paths=201243 elapsed=161s
+2026-07: rows=2678400 missing=0 events=1723 paths=203068 elapsed=166s
+2026-08: rows=2678400 missing=0 events=2587 paths=205699 elapsed=168s
+2026-09: rows=2592000 missing=0 events=2315 paths=208106 elapsed=178s
+done: 210687 events, 6024 random samples, 208106 paths
+210687 events, 210687 without data gaps, 1004 days, 6024 random samples (178s)
+
+EVENT STUDY: average move back toward the pre-spike price, in bp (positive = reversal)
+            signal  events  per day      5s     10s     30s     60s    120s    300s  P(-15bp before +50bp in 120s)
+      rise >= 0.3%   58702    58.47   -0.30   -0.41   -0.54   -0.43   -0.64   -0.66   50.4%
+      rise >= 0.4%   26527    26.42   -0.23   -0.34   -0.52   -0.53   -0.69   -0.73   58.5%
+      rise >= 0.5%   13713    13.66   -0.15   -0.25   -0.34   -0.36   -0.80   -1.99   64.1%
+      rise >= 0.7%    4873     4.85   -0.26   -0.27   -0.84   -1.70   -3.39   -7.94   69.0%
+      rise >= 1.0%    1541     1.53   +0.33   -0.32   -1.16   +1.65   -6.51  -16.30   74.1%
+      fall >= 0.3%   60053    59.81   -0.17   -0.13   +0.04   +0.25   +0.29   +0.59   52.1%
+      fall >= 0.4%   26164    26.06   -0.11   -0.00   +0.32   +0.68   +0.81   +1.79   61.1%
+      fall >= 0.5%   13088    13.04   -0.06   +0.39   +0.69   +1.33   +1.16   +3.77   67.0%
+      fall >= 0.7%    4539     4.52   +0.60   +1.63   +1.86   +2.61   +2.54   +8.54   73.9%
+      fall >= 1.0%    1487     1.48   +0.66   +2.74   +5.43   +9.08  +10.98  +20.63   75.0%
+      random times    6024            -0.04   -0.06   -0.12   -0.21   -0.16   -0.26   13.2%
+Round-trip cost to beat: about 7 bp (maker in, taker out) or 3 bp (maker both ways)
+
+grid: threshold 0.3% done (288s)
+grid: threshold 0.4% done (341s)
+grid: threshold 0.5% done (368s)
+grid: threshold 0.7% done (378s)
+grid: threshold 1.0% done (381s)
+
+CURRENT BOT SETTINGS (0.5%, short, passive entry, tp 15, sl 50, 120 s, taker exit)
+  train: n= 3173 win= 64.3% mean=  -7.98bp t=-16.98  exits={'time': 623, 'target': 2036, 'stop': 514}
+  test : n= 2195 win= 62.0% mean=  -8.05bp t=-13.81  exits={'stop': 363, 'target': 1353, 'time': 479}
+  all  : n= 5368 win= 63.4% mean=  -8.01bp t=-21.88  exits={'time': 1102, 'target': 3389, 'stop': 877}
+  2024: n= 1537 win= 62.8% mean=  -8.26bp t=-12.39
+  2025: n= 2574 win= 64.5% mean=  -7.51bp t=-14.20
+  2026: n= 1257 win= 61.9% mean=  -8.73bp t=-11.20
+
+9000 configurations; 9000 with >= 100 training trades
+  profitable after costs: 0 in training (2024-01..2025-06), 0 in testing (2025-07..2026-09)
+
+TOP 15 BY TRAINING MEAN, AND HOW THEY DID ON UNSEEN TEST DATA
+  0.7% short above20   tp= 10 sl=120 hold=120 exit=maker
+     train n=  612 win= 86.8% mean=  -3.66bp t= -2.88
+     test  n=  433 win= 83.8% mean=  -5.02bp t= -3.18
+  1.0% both  passive   tp= 30 sl=120 hold= 60 exit=maker
+     train n=  811 win= 67.6% mean=  -3.93bp t= -2.16
+     test  n=  425 win= 62.1% mean=  -5.98bp t= -2.43
+  0.7% short above20   tp= 10 sl=120 hold=300 exit=maker
+     train n=  603 win= 90.0% mean=  -3.94bp t= -2.72
+     test  n=  430 win= 87.4% mean=  -5.13bp t= -2.94
+  0.7% short above20   tp= 10 sl= 80 hold=300 exit=maker
+     train n=  615 win= 88.0% mean=  -4.03bp t= -3.29
+     test  n=  433 win= 85.2% mean=  -5.99bp t= -3.85
+  0.7% short above20   tp= 15 sl=120 hold=300 exit=maker
+     train n=  588 win= 84.9% mean=  -4.07bp t= -2.34
+     test  n=  412 win= 82.3% mean=  -4.20bp t= -2.10
+  0.7% short above20   tp= 10 sl= 80 hold=120 exit=maker
+     train n=  616 win= 85.4% mean=  -4.07bp t= -3.51
+     test  n=  436 win= 83.3% mean=  -5.33bp t= -3.67
+  0.7% short above20   tp= 15 sl= 80 hold=120 exit=maker
+     train n=  604 win= 79.0% mean=  -4.36bp t= -3.10
+     test  n=  420 win= 76.7% mean=  -4.86bp t= -2.89
+  0.7% short above20   tp= 15 sl=120 hold=120 exit=maker
+     train n=  597 win= 80.2% mean=  -4.43bp t= -2.80
+     test  n=  415 win= 77.6% mean=  -4.12bp t= -2.29
+  1.0% both  passive   tp= 20 sl=120 hold= 60 exit=maker
+     train n=  846 win= 76.2% mean=  -4.44bp t= -2.83
+     test  n=  434 win= 71.4% mean=  -7.36bp t= -3.22
+  1.0% both  passive   tp= 30 sl=120 hold=120 exit=maker
+     train n=  798 win= 71.2% mean=  -4.50bp t= -2.27
+     test  n=  415 win= 68.0% mean=  -6.85bp t= -2.48
+  1.0% both  passive   tp= 80 sl=120 hold=120 exit=maker
+     train n=  731 win= 55.1% mean=  -4.53bp t= -1.69
+     test  n=  383 win= 54.0% mean=  -8.69bp t= -2.41
+  0.7% short above20   tp= 10 sl=120 hold= 60 exit=maker
+     train n=  612 win= 80.7% mean=  -4.55bp t= -3.83
+     test  n=  434 win= 79.5% mean=  -4.55bp t= -3.30
+  1.0% both  passive   tp= 80 sl=120 hold=300 exit=maker
+     train n=  690 win= 56.1% mean=  -4.58bp t= -1.44
+     test  n=  370 win= 52.4% mean=  -9.99bp t= -2.43
+  0.7% short above20   tp= 15 sl= 80 hold=300 exit=maker
+     train n=  603 win= 82.1% mean=  -4.61bp t= -3.08
+     test  n=  417 win= 79.4% mean=  -5.74bp t= -3.15
+  1.0% both  passive   tp= 20 sl=120 hold=120 exit=maker
+     train n=  840 win= 79.8% mean=  -4.63bp t= -2.77
+     test  n=  429 win= 75.3% mean=  -7.49bp t= -3.10
+  0 of the top 15 stayed profitable on the test period
+  best training configuration by year:
+    2024: n=  282 win= 84.4% mean=  -4.82bp t= -2.51
+    2025: n=  500 win= 86.6% mean=  -3.49bp t= -2.53
+    2026: n=  263 win= 84.8% mean=  -4.98bp t= -2.38
+
+BEST 5 ON TEST DATA ALONE (hindsight, for reference only)
+  0.7% short above20   tp= 30 sl=120 hold=300 exit=maker
+     train n=  556 win= 69.4% mean=  -7.96bp t= -3.20
+     test  n=  400 win= 71.0% mean=  -2.44bp t= -0.94
+  0.7% both  above20   tp= 30 sl=120 hold=300 exit=maker
+     train n= 1153 win= 73.0% mean=  -6.33bp t= -3.59
+     test  n=  651 win= 72.2% mean=  -3.05bp t= -1.44
+  0.7% both  above20   tp= 15 sl=120 hold=300 exit=maker
+     train n= 1245 win= 85.2% mean=  -5.42bp t= -4.23
+     test  n=  682 win= 84.6% mean=  -3.11bp t= -2.01
+  1.0% short above20   tp= 30 sl=120 hold=300 exit=maker
+     train n=  216 win= 70.8% mean= -13.81bp t= -3.06
+     test  n=  151 win= 76.8% mean=  -3.37bp t= -0.69
+  0.7% both  above20   tp= 15 sl=120 hold= 60 exit=maker
+     train n= 1278 win= 76.8% mean=  -5.52bp t= -5.01
+     test  n=  697 win= 75.9% mean=  -3.51bp t= -2.68
+
+BEST TRAINING CONFIGURATION PER ENTRY STYLE
+  1.0% both  passive   tp= 30 sl=120 hold= 60 exit=maker
+     train n=  811 win= 67.6% mean=  -3.93bp t= -2.16
+     test  n=  425 win= 62.1% mean=  -5.98bp t= -2.43
+  0.4% short taker     tp= 10 sl=120 hold=300 exit=maker
+     train n= 6215 win= 76.3% mean= -10.25bp t=-25.36
+     test  n= 4249 win= 73.8% mean= -11.57bp t=-22.76
+  0.7% short above10   tp= 10 sl=120 hold=300 exit=maker
+     train n=  855 win= 86.7% mean=  -5.67bp t= -4.59
+     test  n=  595 win= 85.2% mean=  -5.50bp t= -3.82
+  0.7% short above20   tp= 10 sl=120 hold=120 exit=maker
+     train n=  612 win= 86.8% mean=  -3.66bp t= -2.88
+     test  n=  433 win= 83.8% mean=  -5.02bp t= -3.18
+  1.0% both  confirm10 tp= 80 sl=120 hold=120 exit=maker
+     train n=  760 win= 53.6% mean=  -6.37bp t= -2.47
+     test  n=  396 win= 52.0% mean=  -7.87bp t= -2.30
+
+finished in 381s

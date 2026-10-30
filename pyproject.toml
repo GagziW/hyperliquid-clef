@@ -1,0 +1,28 @@
+[project]
+name = "hyperliquid-clef"
+version = "0.1.0"
+description = "Measured, dry-run ETH perpetual decision pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28,<1",
+    "websockets>=15,<16",
+]
+
+[project.optional-dependencies]
+signing = ["hyperliquid-python-sdk>=0.22,<1"]
+
+[dependency-groups]
+test = ["pytest>=8,<10"]
+lint = ["ruff>=0.12,<1"]
+dev = [{include-group = "test"}, {include-group = "lint"}]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["E501"]

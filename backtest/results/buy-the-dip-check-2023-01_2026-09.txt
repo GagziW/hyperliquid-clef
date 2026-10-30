@@ -1,0 +1,16 @@
+done: 1020 events, 8214 random samples, 9234 paths
+
+BUY 0.20% BELOW AFTER A 1.5% ONE-MINUTE FALL, HOLD 5 MINUTES (after costs)
+  2023: n=   29 win= 72.4% mean= +21.19bp t= +0.90  <- never used for any choice
+  2024: n=   45 win= 71.1% mean= +39.21bp t= +1.25
+  2025: n=   76 win= 68.4% mean= +29.31bp t= +1.99
+  2026: n=   15 win= 80.0% mean= +68.36bp t= +2.67
+  all : n=  165 win= 70.9% mean= +34.13bp t= +2.88
+
+  worst 5 trades: 2024-08-05 -1036 bp, 2023-08-17 -498 bp, 2025-10-10 -415 bp, 2025-02-03 -389 bp, 2025-02-03 -373 bp
+  best 5 trades:  2024-12-09 +363 bp, 2026-01-31 +311 bp, 2025-02-03 +305 bp, 2025-03-02 +299 bp, 2024-08-05 +296 bp
+  trades losing 1% or more: 16 of 165
+  cumulative +5632 bp; worst peak-to-trough 1075 bp; longest losing streak 3
+  at $20 per trade: +11.26 USD over 165 trades (44 trades per year)
+
+[exited with code 0]
