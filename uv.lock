@@ -678,7 +678,7 @@ wheels = [
 ]
 
 [[package]]
-name = "hyperliquid-clef"
+name = "hyperliquid-paper-trading-lab"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

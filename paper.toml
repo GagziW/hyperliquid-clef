@@ -1,5 +1,32 @@
-# Percent values: 0.50 means 0.50%, not 50%. These are unoptimized PAPER test settings.
-network = "mainnet"
+# Paper trader configuration.  Percent values are percentage points: 0.50 means 0.50%, not 50%.
+
+# ── 1. WHICH STRATEGIES RUN ───────────────────────────────────────────────────────────────
+# All strategies in this list run in ONE process and see the SAME live market data.
+# Keep "spike_fade": it is the EXAMPLE strategy and the BENCHMARK that you compare with.
+# Add your own strategy file name (pipeline/strategies/<name>.py).
+run = ["spike_fade", "my_strategy"]
+
+
+# ── 2. SIMULATION: FIXED. DO NOT CHANGE. ─────────────────────────────────────────────────
+# Every student uses the same values, so all results are comparable. If you change a value,
+# the program prints a warning and pipeline.compare marks your result "NOT COMPARABLE".
+[simulation]
+network = "mainnet"            # public live data; no account, no key
+starting_balance_usdc = "1000" # paper money
+order_usdc = "20"              # size of each paper order (10..25)
+maker_fee_bps = "1.5"          # Hyperliquid base-tier fee for a resting (post-only) order
+taker_fee_bps = "4.5"          # Hyperliquid base-tier fee for a market order
+slippage_bps = "1"             # extra cost on each market order and exit
+latency_ms = 250.0             # delay between your decision and the order at the exchange
+entry_timeout_s = 5.0          # an unfilled post-only entry is cancelled after this time
+max_book_age_ms = 1500.0       # older order books are rejected as stale
+gap_reset_s = 5.0              # a longer pause in book updates counts as a data gap
+
+
+# ── 3. STRATEGY PARAMETERS: YOURS. ───────────────────────────────────────────────────────
+# One table for each strategy. The keys must match the Params dataclass in the strategy file.
+
+[strategies.spike_fade]        # EXAMPLE strategy: do not tune it; it is the benchmark
 jump_threshold_pct = "0.50"
 lookback_s = 60.0
 take_profit_pct = "0.15"
@@ -7,12 +34,10 @@ stop_loss_pct = "0.50"
 max_holding_s = 120.0
 cooldown_s = 30.0
 
-starting_balance_usdc = "1000"
-order_usdc = "20"
-maker_fee_bps = "1.5"
-taker_fee_bps = "4.5"
-exit_slippage_bps = "1"
-latency_ms = 250.0
-entry_timeout_s = 5.0
-max_book_age_ms = 1500.0
-gap_reset_s = 5.0
+[strategies.my_strategy]       # YOUR strategy: change these values as you like
+lookback_s = 60.0
+max_holding_s = 300.0
+
+[strategies.ai_template]       # AI template: add "ai_template" to run = [...] to use it
+provider = "mock"
+interval_s = 30.0

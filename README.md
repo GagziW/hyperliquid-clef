@@ -1,157 +1,253 @@
-# ETH Perpetual Infrastructure Probe
+# Hyperliquid Paper-Trading Lab
 
-This project contains a **rules-only paper trader** and the original dry-run
-infrastructure probe. Neither submits orders. The probe tests connectivity,
-credentials, market-data capture, typed model decisions, order formatting and
-latency. The paper trader below simulates a short-side spike-fade strategy.
-There is no exchange-submission implementation or live-trading switch, and no
-demonstrated profitable strategy.
+Write your own trading strategy, run it for 24 hours on **live** Hyperliquid ETH market data with
+**paper money**, and compare it with the example strategy.
 
-## Research Findings (30 Oct 2026)
+- No account, no wallet and no API key are necessary. The program reads only public market data.
+- The program **never sends orders**. All trades are simulated.
+- Performance is secondary. The goal is to understand how the program connects to live data, which
+  parameters it uses, and how a paper trade works under the hood.
 
-Full write-up, data and proposed next steps: [RESEARCH.md](RESEARCH.md).
+Course: AI in Trading, SIMIS. Contact: Dr. Leon Witt, leon.witt@simis.cn
 
-- The current short-only spike-fade rule loses money: 12 live paper trades in 20 days at −6.6 bp
-  per trade, and a 33-month backtest on Binance one-second data at −8.0 bp per trade over 5,368
-  trades. None of 9,000 parameter variants was profitable in or out of sample.
-- After sharp one-minute rises ETH tends to continue rather than revert; after sharp falls it bounces.
-- Buying after falls of 1.5% or more (hold 5 minutes) was positive in two unseen periods
-  (+34 bp per trade over 165 trades, 2023 to Sep 2026), but the sample is small and the worst trade lost 10.4%.
+## 1. Install (Windows, macOS, Linux)
 
-Backtest code is in `backtest/`; exported paper data is in `data/paper-trading/`.
+You need about 10 minutes and an internet connection. `uv` installs the correct Python version
+for you, so you do not need to install Python yourself.
 
-## Rules-Only Paper Trader
+**Windows** (open *PowerShell*):
 
-The paper trader does not call Clef or any other model, inspect private wallets,
-or require API keys. It uses public mainnet ETH perpetual books and trades.
-
-```sh
-uv sync --locked --no-dev
-uv run --no-dev python -m pipeline.paper --config paper.toml
+```powershell
+winget install --id Git.Git -e
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Edit `paper.toml` to configure the strategy. Percent values are in percentage
-points: `0.50` means 0.50%, not 50%. Initial values are unoptimized test settings:
+Close PowerShell and open it again, so that it finds `git` and `uv`. If `winget` is not available,
+install Git from <https://git-scm.com/download/win>.
 
-| Parameter | Initial Value |
+**macOS / Linux** (open *Terminal*; macOS asks to install Git the first time that you use it):
+
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Then, on all systems:**
+
+```sh
+git clone https://github.com/GagziW/hyperliquid-paper-trading-lab.git
+cd hyperliquid-paper-trading-lab
+uv sync --locked
+uv run pytest -q
+```
+
+If the tests pass (one optional signing test is skipped), the installation is correct. All
+commands below are the same on Windows, macOS and Linux.
+
+## 2. Run the example strategy
+
+```sh
+uv run python -m pipeline.paper --duration 600
+```
+
+This runs all strategies in `run = [...]` in `paper.toml` for 10 minutes. In a second terminal:
+
+```sh
+uv run python -m pipeline.paper --status
+uv run python -m pipeline.compare
+```
+
+The program prints one line at the start of each strategy and one line for each fill and exit.
+The example signal is rare: in 10 minutes, possibly no trade occurs. Stop the program with
+`Ctrl+C`; it saves the paper account before it stops. While it runs, it keeps the computer awake
+(Windows, macOS, Linux). Closing a laptop lid can still put it to sleep.
+
+## 3. What is fixed and what is yours
+
+`paper.toml` has three parts:
+
+| Part | Who changes it | Contents |
+| --- | --- | --- |
+| `run = [...]` | **you** | The strategies that run. Keep `spike_fade` (the benchmark) and add yours. |
+| `[simulation]` | **nobody: FIXED** | Fees, slippage, latency, order size, starting balance, data-quality limits. |
+| `[strategies.<name>]` | **you** | The parameters of each strategy. |
+
+The fixed simulation settings are the same for every student:
+
+| Setting | Value | Meaning |
+| --- | --- | --- |
+| `network` | mainnet | Public live data, no account |
+| `starting_balance_usdc` | 1,000 | Paper money |
+| `order_usdc` | 20 | Size of each paper order |
+| `maker_fee_bps` / `taker_fee_bps` | 1.5 / 4.5 | Hyperliquid base-tier fees |
+| `slippage_bps` | 1 | Extra cost on each market order and exit |
+| `latency_ms` | 250 | Delay from your decision to the exchange |
+| `entry_timeout_s` | 5 | An unfilled post-only entry is cancelled after 5 s |
+| `max_book_age_ms` | 1,500 | Older order books are rejected |
+| `gap_reset_s` | 5 | A longer pause in the data is a data gap |
+
+If you change a `[simulation]` value, the program prints a warning, `status.json` shows
+`"simulation_standard": false`, and `pipeline.compare` marks the result **NOT COMPARABLE**.
+
+## 4. What we compare
+
+Your strategy and the example strategy run **in the same process, in the same 24 hours, on the same
+market events, with the same fixed simulation**. For this reason, the only difference is the
+strategy. `uv run python -m pipeline.compare` shows them side by side:
+
+| Value | Question |
 | --- | --- |
-| Upward jump over the lookback window | 0.50% |
-| Lookback window | 60 seconds |
-| Take-profit decline from filled entry | 0.15% |
-| Stop-loss rise from filled entry | 0.50% |
-| Maximum holding time before requesting exit | 120 seconds |
-| Cooldown after closing | 30 seconds |
-| Starting simulated cash | 1,000 USDC |
-| Requested simulated short | 20 USDC; hard cap 25 |
-| Simulated order latency | 250 milliseconds |
-| Unfilled entry lifetime | 5 seconds |
-| Maker / taker fees | 1.5 / 4.5 basis points |
-| Extra exit slippage | 1 basis point |
+| order books observed, data gaps | Did both strategies see the same data? |
+| entries requested / rejected / expired | How often did your signal fire, and how often did the order not fill? |
+| closed trades, win rate | How often did you trade, and how often did you win? |
+| P&L after fees, mean net per trade (bp) | Did the strategy pay for its costs? |
+| max drawdown | What was the worst fall of the paper account? |
+| model calls | How many paid AI calls did the strategy make? |
 
-The four principal settings also have command-line overrides:
+24 hours is a small sample. A day can show a bug, a cost problem or a wrong hypothesis; it cannot
+prove a strategy. Funding payments are not modelled.
+
+## 5. Write your own strategy
+
+The engine (`pipeline/paper_engine.py`) does the work that must be the same for everybody: fills,
+fees, latency, exits, P&L and the account. A strategy only decides **when** to trade and **in which
+direction**. It can be as simple or as complex as you want: rules, statistics, machine learning or
+an AI model.
+
+1. Open `pipeline/strategies/my_strategy.py`. It is a commented template; it explains all the data
+   that you get and everything that you can return.
+2. Write your hypothesis at the top of the file.
+3. Put your parameters into the `Params` dataclass and into `[strategies.my_strategy]` in
+   `paper.toml`.
+4. Write your rule in `on_book` (and `on_trade` if you use the trade stream). Return
+   `Entry(side="long" or "short", ...)` to open a position, `Exit()` to close it, or `None`.
+5. Write tests in `tests/` (copy the style of `tests/test_paper.py`), then run `uv run pytest -q`.
+
+The example strategy `pipeline/strategies/spike_fade.py` is a complete strategy in about 60 lines.
+Read it first. To use another file name, copy the template to `pipeline/strategies/<name>.py` and
+put `<name>` into `run = [...]`.
+
+| You can choose | Values |
+| --- | --- |
+| Direction | `side="long"` or `side="short"` |
+| Entry type | `style="maker"`: post-only limit at the best bid/ask (1.5 bp, may not fill) <br> `style="taker"`: market order (fills, 4.5 bp + 1 bp slippage) |
+| Exits | `take_profit_pct`, `stop_loss_pct` (or `None`), `max_holding_s` (required, at most 24 h), or return `Exit()` |
+| Anything else | Your own state: price history, volatility, trade flow, time of day, model answers ... |
+
+The engine allows one position at a time and ignores an `Entry` while a position or an entry
+order is open.
+
+### Use an AI model
+
+`pipeline/strategies/ai_template.py` shows the pattern. The model runs in the slow `background`
+task (for example each 30 s); `on_book` only reads the latest answer. If the answer is old or
+missing, the strategy does not trade. The template uses the `mock` model by default, so it runs
+without a key. Put keys only into environment variables, never into a file in this repository.
+
+## 6. Run for 24 hours and compare
 
 ```sh
-uv run --no-dev python -m pipeline.paper \
-  --jump-threshold-pct 0.8 --lookback-s 60 \
-  --take-profit-pct 0.2 --stop-loss-pct 0.6 --max-holding-s 90 \
-  --duration 600
+uv run python -m pipeline.paper --duration 86400
 ```
 
-Without `--duration`, it runs until stopped. A short is considered only when the
-rolling mid-price return first crosses the jump threshold, after a complete
-lookback has been observed. The strategy does not repeatedly short while the same
-signal remains above threshold. There is one position at a time, no averaging
-down, and an entry equity cap with a paper risk exit if gross exposure exceeds 1x.
-
-Entry is a fixed post-only sell limit at the observed best ask. A touched price
-is **not** counted as a fill. The first book timestamped after simulated latency
-must still permit a passive sell; an already-crossing limit is rejected. Until
-that confirmation there are no fills, so intervening possible fills are missed
-rather than invented. The simulator then requires a subsequent buyer-initiated
-trade strictly above that limit, after confirmation and before expiry,
-with enough reported volume for the complete paper order. This conservative
-trade-through approximation does not reconstruct queue priority, partial fills
-or the market impact of inserting our order. It is not a live-fill guarantee.
-
-Exits are simulated buys against available ask depth on the next fresh book after
-the configured latency, with extra slippage and taker fees. Profit and stop triggers
-use executable ask depth rather than mid price. Stop and time-limit exits can be
-late or worse than their trigger prices. No exit is fabricated using stale data
-or insufficient displayed depth. Disconnects cancel unfilled paper entries,
-reset signal history, and request an exit for an existing short; filling that
-exit still requires fresh data.
-
-### Results
-
-`runs/paper/status.json` is refreshed at least every five seconds while healthy.
-It reports the actual hostname, configuration, paper balance, closed P&L after
-fees, estimated equity, observed drawdown, pending orders and any open short.
-Separate parameter sets get separate experiment subdirectories; changing settings
-starts a new simulated account rather than mixing results.
-
-Inside each experiment directory:
+Results are in `runs/paper/<strategy>/`:
 
 | File | Contents |
 | --- | --- |
-| `trades.csv` | Closed paper trades, prices, fees, holding time and exit reason |
-| `summary.json` | Latest account and strategy summary |
-| `state.json` | Atomic account checkpoint, including the closed-trade ledger |
-| `events-YYYY-MM-DD.jsonl` | Daily UTC signal, fill, exit, connection and status events |
+| `status.json` | Latest status, refreshed at least every 5 seconds |
+| `<config-hash>/summary.json` | Account and strategy summary |
+| `<config-hash>/trades.csv` | One line for each closed trade (side, prices, fees, net bp, exit reason, your `note`) |
+| `<config-hash>/state.json` | Checkpoint of the paper account; a restart continues from it |
+| `<config-hash>/events-YYYY-MM-DD.jsonl` | Each signal, order, fill, exit and data gap |
 
-The checkpoint is authoritative. CSV is regenerated, so restarts do not append
-duplicate trades. Restarting the same configuration restores cash and positions,
-cancels an unfilled entry, rewarms history, and requests a risk exit for a short
-whose price path was not observed during downtime. Only one process can own an
-output directory. On a normal stop, open shorts are reported and checkpointed,
-not silently closed at an invented price.
-
-**Funding is not modeled.** P&L after fees includes simulated slippage but is not
-all-in net trading profit. Trades crossing hourly funding boundaries are flagged.
-Observed drawdown can miss movements during data gaps. The event log is an audit
-of the paper strategy, not a complete raw-market-data archive or historical
-backtest. These results must not be presented as achievable live performance.
-
-### Mac Mini Operation
-
-The configured destination is
-`/Users/leonwitt/codeMacMini/prediction_markets/hyperliquid-clef` on SSH host
-`macmini-gagzi`. From this local project:
+A new set of parameters gets a new `<config-hash>` directory and a new paper account, so results
+never mix. Then:
 
 ```sh
-sh scripts/macmini-paper.sh status
-sh scripts/macmini-paper.sh fetch
-sh scripts/macmini-paper.sh stop
-sh scripts/macmini-paper.sh start
+uv run python -m pipeline.compare
 ```
 
-`fetch` copies results into local `runs/macmini-paper/`. To change parameters,
-stop the service, update the Mac mini's `paper.toml`, and start again. Prior
-experiments remain intact. A new parameter set has its own paper cash balance.
+## 7. Deliverables
 
-On the Mac mini itself, use `sh scripts/paper-service.sh start|stop|status|uninstall`.
-The service is a user LaunchAgent named `com.prediction-markets.eth-paper`.
-It runs in the background, retries after failure, and loads at the next user
-login. This is **not** a system daemon that starts before login after reboot.
-`stop` unloads it for the current session; `uninstall` also removes the startup
-registration while preserving all results. No global power settings are changed.
-Service output is in `runs/service/stdout.log` and `stderr.log`.
+1. **Code**: your strategy file, your `paper.toml` and your tests.
+2. **Run data**: the `runs/paper/` folders of your strategy and of `spike_fade` from the same run.
+3. **Visualization**: one page that shows how your strategy works: the data that it uses, the
+   signal, the entry, the exits and the parameters.
+4. **Explanation**: explain your strategy in front of the class, including how the program gets the
+   live data, which parameters are fixed and which are yours, and how a paper trade fills.
 
-### Paper Deployment Check: 2026-10-10
+## 8. How the paper trader works
 
-The rules-only service was installed and started on `Leons-Mac-mini.local`
-(Apple silicon, Python 3.12). Public ETH books and trades connected successfully,
-and the full 60-second signal window warmed up. A stop/start check restored the
-paper account and preserved its logs. The final deployment reported no errors,
-no model calls, no exchange submissions and no triggered trades during the
-initial check; this establishes connectivity, not profitability.
+```text
+Hyperliquid WebSocket (public): l2Book (5 levels, fast) + trades
+  -> pipeline/market.py      Feed: parse, validate, reconnect with backoff
+  -> pipeline/paper.py       one queue, freshness checks, data gaps, logs, all strategies
+  -> pipeline/strategies/    YOUR decision: Entry / Exit / None
+  -> pipeline/paper_engine.py FIXED simulation: orders, fills, exits, fees, P&L, checkpoint
+```
 
-The full test suite passed 77 tests on both the development machine and Mac mini;
-the optional SDK signing test was skipped. Paper tests include threshold
-crossings, delayed passive-entry validation, trade-through fills, profit/stop/time
-exits, shallow depth, feed failures, checkpoint recovery and duplicate-process
-protection. Lint and shell syntax checks also passed.
+**Maker entry (post-only).** A short rests at the best ask, a long at the best bid. A touched price
+is **not** a fill. The first book after the simulated latency must still allow a passive order; an
+order that would cross is rejected. The order fills only on a later trade strictly through the
+limit (a buyer-initiated trade above a short's limit, a seller-initiated trade below a long's
+limit), before expiry, with enough volume for the full paper order. This conservative
+approximation does not reconstruct queue priority, partial fills or market impact.
 
-The original probe below is separate from this rules-only paper process.
+**Taker entry (market order).** After the latency, the order fills against the displayed depth of
+the first fresh book, plus slippage and the taker fee. If the depth is too small, it is rejected.
+
+**Exits.** The engine closes a position at the take-profit, the stop-loss, the time limit, an
+exposure above 1x equity, a data gap, or an `Exit()` from the strategy. Exits are market orders
+on the next fresh book after the latency, against the displayed depth, plus slippage and the taker
+fee. Profit and stop triggers use the executable price (ask depth for a short, bid depth for a
+long), not the mid price. A stop can fill worse than its trigger price.
+
+**Data quality.** Books older than 1.5 s are rejected. Disconnects, stale books and pauses longer
+than 5 s are data gaps: the engine cancels an unfilled entry, requests an exit for an open
+position, and calls `reset()` on the strategy so that it can clear its history. No price is
+invented for the time without data.
+
+**Restarts.** The checkpoint `state.json` is authoritative. Restarting the same configuration
+restores cash and positions, cancels an unfilled entry and requests a risk exit for a position
+whose price path was not observed. Only one process can own an output directory.
+
+**Funding is not modelled.** P&L after fees includes simulated slippage but is not all-in net
+trading profit. Trades crossing hourly funding boundaries are counted. These results must not be
+presented as achievable live performance.
+
+## 9. The example strategy and research findings
+
+`spike_fade` sells short after the mid price rises 0.50% or more within 60 s, with a 0.15%
+take-profit, a 0.50% stop-loss and a 120 s time limit. It is an **example**, not a recommendation:
+
+- 12 live paper trades in 20 days lost 6.6 bp per trade; a 33-month backtest on Binance one-second
+  data lost 8.0 bp per trade over 5,368 trades. None of 9,000 parameter variants was profitable.
+- After sharp one-minute rises ETH tends to continue rather than revert; after sharp falls it bounces.
+
+Full write-up, data and ideas for other strategies: [RESEARCH.md](RESEARCH.md). Backtest code is in
+`backtest/`; exported paper data of the example is in `data/paper-trading/`.
+
+### Instructor: macOS background service
+
+`scripts/paper-service.sh start|stop|status|uninstall` installs the paper trader as a user
+LaunchAgent (`com.prediction-markets.eth-paper`) that restarts after failure and loads at login.
+`scripts/macmini-paper.sh` runs the same commands on a remote Mac over SSH and `fetch` copies the
+results into `runs/macmini-paper/`. Service output is in `runs/service/`.
+
+## 10. Verification
+
+```sh
+uv run pytest -q
+uv run ruff check pipeline tests
+uv run ruff format --check pipeline tests
+```
+
+---
+
+# Part 2: The AI decision probe (dry run)
+
+The original infrastructure probe is separate from the paper trader. It sends live market features
+to a model (Clef, Clef Flash, Jev or a mock), checks the answer, and builds an **unsigned** order
+preview that is never submitted. `ai_template.py` reuses its `Model` class.
 
 ```text
 Hyperliquid ETH book + trades over WebSocket

@@ -43,7 +43,7 @@ def main():
                              t["exit_reason"], f"{pnl:.4f}", f"{pnl / notional * 10000:.2f}"])
 
     days, resets, first_ms, last_ms = {}, [], None, None
-    counted = ("entry_requested", "entry_rejected", "entry_expired", "short_opened", "feed_disconnected")
+    counted = ("entry_requested", "entry_rejected", "entry_expired", "position_opened", "feed_disconnected")
     for path in sorted(source.glob("events-*.jsonl")):
         with path.open() as f:
             for line in f:
@@ -58,7 +58,7 @@ def main():
                 kind = event["event"]
                 if kind in counted:
                     day[kind] += 1
-                elif kind == "short_closed":
+                elif kind in {"position_closed", "short_closed"}:
                     day["trades_closed"] += 1
                     day["pnl_after_fees_usdc"] += Decimal(event["trade"]["pnl_after_fees_usdc"])
                 elif kind == "signal_history_reset":
@@ -77,7 +77,7 @@ def main():
                    "history_resets", "feed_disconnects", "blind_pct"]
         writer.writerow(["date_utc", *columns])
         for date, d in sorted(days.items()):
-            writer.writerow([date, d["entry_requested"], d["entry_rejected"], d["entry_expired"], d["short_opened"],
+            writer.writerow([date, d["entry_requested"], d["entry_rejected"], d["entry_expired"], d["position_opened"],
                              d["trades_closed"], f"{d['pnl_after_fees_usdc']:.4f}", d["history_resets"],
                              d["feed_disconnected"], f"{100 * d['blind_s'] / 86400:.1f}"])
 
